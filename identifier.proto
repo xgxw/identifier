@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package identifier;
+option go_package = "pb";
+
+service Snowflake {
+  rpc Generate(Request)returns (Response);
+}
+
+message Request{}
+message Response{
+  int64 uniqid = 1;
+}

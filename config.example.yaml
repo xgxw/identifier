@@ -1,0 +1,6 @@
+snowflake:
+  port: 10001
+  worler_id: 0
+
+logger:
+  mode: "debug"
