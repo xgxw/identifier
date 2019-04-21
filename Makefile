@@ -32,6 +32,8 @@ define color_out
 	@echo $(1)$(2)$(CL_NONE)
 endef
 
+docker-build:export GO111MODULE=on
+docker-build:export CGO_ENABLED=0
 docker-build:
 	@go mod vendor
 	$(call color_out,$(CL_BLUE),"Building binary in docker ...")
