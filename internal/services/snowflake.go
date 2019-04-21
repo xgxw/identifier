@@ -9,6 +9,20 @@ import (
 	"github.com/everywan/identifier"
 )
 
+/*
+*
+* 1                                               42           52             64
+* +-----------------------------------------------+------------+---------------+
+* | timestamp(ms)                                 | workerid   | sequence      |
+* +-----------------------------------------------+------------+---------------+
+* | 0000000000 0000000000 0000000000 0000000000 0 | 0000000000 | 0000000000 00 |
+* +-----------------------------------------------+------------+---------------+
+*
+* 1. 41位时间截(秒级), 大概可用 ((1<<40)-1555868387)/60/60/24/365 == 34815.9 年(20190422), 后续改为毫秒也可用34年
+* 2. 10位数据机器位，可以部署在1024个节点
+* 3. 12位序列，毫秒内的计数，同一机器，同一时间截并发4096个序号
+ */
+
 const (
 	workeridBits = uint(10) //机器id所占的位数
 	sequenceBits = uint(12) //序列所占的位数
@@ -40,13 +54,13 @@ var _ identifier.SnowflakeService = &SnowflakeService{}
 func (s *SnowflakeService) Generate(ctx context.Context) (id int64, err error) {
 	s.Lock()
 	defer s.Unlock()
-	now := time.Now().Unix() / 1e6
+	now := time.Now().Unix()
 
 	if now == s.timestamp {
 		s.sequence = (s.sequence + 1) & sequenceMax
 		if s.sequence == 0 {
 			for now <= s.timestamp {
-				now = time.Now().Unix() / 1e6
+				now = time.Now().Unix()
 			}
 		}
 	} else if now > s.timestamp {
